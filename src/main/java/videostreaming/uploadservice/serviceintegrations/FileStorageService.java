@@ -34,4 +34,9 @@ public class FileStorageService {
                 .exchange(serviceUrl + "/upload", HttpMethod.POST, requestEntity, String.class)
                 .getBody();
     }
+
+    public void deleteFromCloud(String fileUrl) {
+        restTemplate.delete(serviceUrl + "/delete?fileUrl=" + fileUrl);
+    }
+
 }

@@ -31,14 +31,13 @@ public class UploadController {
 
 
     @PostMapping("/upload")
-    public ResponseEntity<?> upload(HttpServletRequest request,
+    public ResponseEntity<VideoDto> upload(HttpServletRequest request,
                                            @RequestParam String originalFilename,
                                            @RequestParam MultipartFile videoFile,
                                            @RequestParam MultipartFile thumbnailImageFile) {
 
-
         if (!authenticationService.isUserAuthenticated(request))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("UNAUTHORIZED");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 
 
         String ownerUserName = authenticationService.getUsernameFromToken(request);
@@ -54,8 +53,25 @@ public class UploadController {
         return ResponseEntity.ok(videoDto);
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<?> test(HttpServletRequest request) {
-        return null;
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(HttpServletRequest request, @PathVariable Long id) {
+
+        if (!authenticationService.isUserAuthenticated(request))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Video video = videoRepository.findById(id).orElse(null);
+
+        if (video == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        if (!authenticationService.getUsernameFromToken(request).equals(video.getOwnerUserName()))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        fileStorageService.deleteFromCloud(video.getVideoUrl());
+        fileStorageService.deleteFromCloud(video.getThumbnailImageUrl());
+
+        videoRepository.delete(video);
+
+        return ResponseEntity.ok().build();
     }
 }
