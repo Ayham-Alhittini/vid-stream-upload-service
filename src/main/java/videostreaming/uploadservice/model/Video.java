@@ -10,6 +10,8 @@ public class Video {
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String ownerUserName;
+
     private String originalFileName;
 
     private String videoUrl;
@@ -18,7 +20,8 @@ public class Video {
 
     public Video() {}
 
-    public Video(String originalFileName, String videoUrl, String thumbnailImageUrl) {
+    public Video(String ownerUserName, String originalFileName, String videoUrl, String thumbnailImageUrl) {
+        this.ownerUserName = ownerUserName;
         this.originalFileName = originalFileName;
         this.videoUrl = videoUrl;
         this.thumbnailImageUrl = thumbnailImageUrl;
@@ -26,6 +29,14 @@ public class Video {
 
     public Long getId() {
         return id;
+    }
+
+    public String getOwnerUserName() {
+        return ownerUserName;
+    }
+
+    public void setOwnerUserName(String ownerUserName) {
+        this.ownerUserName = ownerUserName;
     }
 
     public String getOriginalFileName() {
