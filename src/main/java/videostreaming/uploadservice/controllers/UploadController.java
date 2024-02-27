@@ -15,6 +15,7 @@ import videostreaming.uploadservice.utilities.Mapper;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "*")
 public class UploadController {
 
     private final VideoRepository videoRepository;
