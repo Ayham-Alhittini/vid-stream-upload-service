@@ -35,7 +35,9 @@ public class UploadController {
     public ResponseEntity<VideoDto> upload(HttpServletRequest request,
                                            @RequestParam String originalFilename,
                                            @RequestParam MultipartFile videoFile,
-                                           @RequestParam MultipartFile thumbnailImageFile) {
+                                           @RequestParam MultipartFile thumbnailImageFile,
+                                           @RequestParam Long videoDuration,
+                                           @RequestParam (required = false) String videoDescription) {
 
         if (!authenticationService.isUserAuthenticated(request))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
@@ -45,7 +47,7 @@ public class UploadController {
         String videoUrl = fileStorageService.saveInCloud(videoFile);
         String thumbnailImageUrl = fileStorageService.saveInCloud(thumbnailImageFile);
 
-        Video video = new Video(ownerUserName, originalFilename, videoUrl, thumbnailImageUrl);
+        Video video = new Video(ownerUserName, originalFilename, videoUrl, thumbnailImageUrl, videoDuration, videoDescription);
 
         videoRepository.save(video);
 
@@ -74,5 +76,37 @@ public class UploadController {
         videoRepository.delete(video);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/edit/{videoId}")
+    public ResponseEntity<VideoDto> editVideo(HttpServletRequest request,
+                                           @PathVariable Long videoId,
+                                           @RequestParam String originalFilename,
+                                           @RequestParam (required = false) MultipartFile thumbnailImageFile,
+                                           @RequestParam (required = false) String videoDescription) {
+
+        if (!authenticationService.isUserAuthenticated(request))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+
+        Video video = videoRepository.findById(videoId).orElse(null);
+        if (video == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+
+        String ownerUserName = authenticationService.getUsernameFromToken(request);
+        if (!video.getOwnerUserName().equals(ownerUserName))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+
+
+        video.setOriginalFileName(originalFilename);
+        video.setVideoDescription(videoDescription);
+
+        if (thumbnailImageFile != null) {
+            fileStorageService.deleteFromCloud(video.getThumbnailImageUrl());
+            video.setThumbnailImageUrl( fileStorageService.saveInCloud(thumbnailImageFile) );
+        }
+        videoRepository.save(video);
+
+        VideoDto videoDto = Mapper.mapVideoToVideoDto(video);
+
+        return ResponseEntity.ok(videoDto);
     }
 }

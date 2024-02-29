@@ -11,7 +11,7 @@ import videostreaming.uploadservice.dto.VideoDto;
 
 @Service
 public class FileStorageService {
-    private final String serviceUrl = "http://host.docker.internal:8080/cloud";
+    private final String serviceUrl = "http://host.docker.internal:9080/cloud";
 
     private final RestTemplate restTemplate;
 
