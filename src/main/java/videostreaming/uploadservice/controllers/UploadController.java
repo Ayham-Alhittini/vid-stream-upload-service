@@ -9,8 +9,8 @@ import videostreaming.uploadservice.data.VideoRepository;
 
 import videostreaming.uploadservice.dto.VideoDto;
 import videostreaming.uploadservice.model.Video;
-import videostreaming.uploadservice.serviceintegrations.AuthenticationService;
-import videostreaming.uploadservice.serviceintegrations.FileStorageService;
+import videostreaming.uploadservice.externalservices.AuthenticationService;
+import videostreaming.uploadservice.externalservices.FileStorageService;
 import videostreaming.uploadservice.utilities.Mapper;
 
 @RestController
